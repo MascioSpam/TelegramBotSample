@@ -47,9 +47,29 @@ if (isset($message['text'])) {
         telegram_send_message($chat_id, 'This is your first Telegram bot, welcome!');
     }
     else {
-        echo "Received message: $text" . PHP_EOL;
 
-        // Do something else...
+        $handle = prepare_curl_api_request(PROGRAMO_API_URI_BASE, 'POST',
+    		array(
+        		'say' => $message['text'],
+        		'bot_id' => PROGRAMO_BOT_ID,
+        		'format' => 'json',
+        		'convo_id' => 'telegram' . $chat_id
+    		),
+    		null,
+    		array(
+        		'Content-Type: application/x-www-form-urlencoded',
+        		'Accept: application/json'
+    		)
+	);
+
+	$response = perform_curl_request($handle);
+	if($response === false) {
+    		Logger::fatal('Failed to perform request', __FILE__);
+	}
+
+	$json_response = json_decode($response, true);
+	$bot_response = $json_response['botsay'];
+	telegram_send_message($chat_id, $bot_response);
     }
 }
 else {
