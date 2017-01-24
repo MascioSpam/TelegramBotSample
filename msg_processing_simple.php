@@ -76,6 +76,11 @@ if (isset($message['text'])) {
 			break;
 		}
 		case 'rating':{
+			$avg = db_scalar_query("SELECT AVG(vote) FROM bot_votes");
+			$count = db_scalar_query("SELECT COUNT(user_id) as count FROM bot_votes");
+			$bot_response = "Ho ricevuto un totale di $count valutazioni con una media di $avg";
+			telegram_send_message($chat_id, $bot_response);
+			break;
 		}
 		default:{
 			telegram_send_message($chat_id, ERROR_UNKNOWN_COMMAND);
