@@ -22,23 +22,22 @@ function handle_conversation($chat_id, $from_id, $message, $conv) {
 	    if ($vote >= 1 && $vote <= 5){
 		db_perform_action ("REPLACE INTO bot_votes VALUES($from_id, $vote)");
             	telegram_send_message($chat_id, VALUTAZIONE_MSG_1);
+		db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
+            	return true;
 	    }
 	    else {
 		db_perform_action("REPLACE INTO `conversation` VALUES($from_id, 'valutazione', 2)");
 		telegram_send_message($chat_id, VALUTAZIONE_MSG_2);
+		return true;
 	    }
-
-            db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
-            return true;
 	case 2:
 	    $vote = intval($text);
 	    if ($vote >= 1 && $vote <= 5){
 		db_perform_action ("REPLACE INTO bot_votes VALUES($from_id, $vote)");
             	telegram_send_message($chat_id, VALUTAZIONE_MSG_1);
 	    }
-	    else {
-		return false;
-	    }
+	    else
+		telegram_send_message($chat_id, VALUTAZIONE_MSG_3);
 
             db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
             return true;
