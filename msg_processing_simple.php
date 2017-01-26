@@ -21,23 +21,23 @@ function handle_conversation($chat_id, $from_id, $message, $conv) {
 	    $vote = intval($text);
 	    if ($vote >= 1 && $vote <= 5){
 		db_perform_action ("REPLACE INTO bot_votes VALUES($from_id, $vote)");
-            	telegram_send_message($chat_id, VALUTAZIONE_MSG_1);
+            	telegram_send_message($chat_id, VALUTABOT_MSG_1);
 		db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
             	return true;
 	    }
 	    else {
-		db_perform_action("REPLACE INTO `conversation` VALUES($from_id, 'valutazione', 2)");
-		telegram_send_message($chat_id, VALUTAZIONE_MSG_2);
+		db_perform_action("REPLACE INTO `conversation` VALUES($from_id, 'valutabot', 2)");
+		telegram_send_message($chat_id, VALUTABOT_MSG_2);
 		return true;
 	    }
 	case 2:
 	    $vote = intval($text);
 	    if ($vote >= 1 && $vote <= 5){
 		db_perform_action ("REPLACE INTO bot_votes VALUES($from_id, $vote)");
-            	telegram_send_message($chat_id, VALUTAZIONE_MSG_1);
+            	telegram_send_message($chat_id, VALUTABOT_MSG_1);
 	    }
 	    else
-		telegram_send_message($chat_id, VALUTAZIONE_MSG_3);
+		telegram_send_message($chat_id, VALUTABOT_MSG_3);
 
             db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
             return true;
@@ -69,12 +69,19 @@ if (isset($message['text'])) {
 			break;
 		}
 		case 'valutabot':{
-        		db_perform_action("REPLACE INTO `conversation` VALUES($from_id, 'valutazione', 1)");
+        		db_perform_action("REPLACE INTO `conversation` VALUES($from_id, 'valutabot', 1)");
 
-       			telegram_send_message($chat_id, VALUTAZIONE_MSG_0);
+       			telegram_send_message($chat_id, VALUTABOT_MSG_0);
 			break;
 		}
 		case 'rating':{
+			$avg = db_scalar_query("SELECT AVG(vote) FROM bot_votes");
+			$count = db_scalar_query("SELECT COUNT(user_id) as count FROM bot_votes");
+			$bot_response = "Ho ricevuto un totale di $count valutazioni con una media di $avg";
+			telegram_send_message($chat_id, $bot_response);
+			break;
+		}
+		case 'bibliprovincia':{
 			$avg = db_scalar_query("SELECT AVG(vote) FROM bot_votes");
 			$count = db_scalar_query("SELECT COUNT(user_id) as count FROM bot_votes");
 			$bot_response = "Ho ricevuto un totale di $count valutazioni con una media di $avg";
