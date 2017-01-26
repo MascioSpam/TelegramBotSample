@@ -1,5 +1,4 @@
 <?php
-// Function definitions
 
 function handle_conversation($chat_id, $from_id, $message, $conv) {
     if($conv === false) {
@@ -12,9 +11,18 @@ function handle_conversation($chat_id, $from_id, $message, $conv) {
     }
 
     $topic = $conv[1];
-    $state = $conv[2];
-    $text = $message['text'];
 
+    switch($topic) {
+	case valutabot:
+		return handle_vote ($chat_id, $from_id, $message, $conv);
+	default:
+		return false;
+    }
+}
+
+function handle_vote($chat_id, $from_id, $message, $conv) {
+    $text = $message['text'];
+    $state = $conv[2];
     switch($state) {
         case 1:
 	    $vote = intval($text);
@@ -40,10 +48,8 @@ function handle_conversation($chat_id, $from_id, $message, $conv) {
 
             db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
             return true;
+	default:
+	   return false;
     }
-
-    return false;
 }
-
-// End of Function declarations
 ?>
