@@ -25,7 +25,7 @@ if (!$update) {
 else {
     if (isset($update['message'])) {
         $message = $update['message'];
-        include 'msg_processing_simple.php';
+        include 'msg_processing.php';
     }
     else {
         Logger::fatal('Bad message received (no message field)', __FILE__);
