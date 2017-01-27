@@ -1,3 +1,4 @@
 start - Avvia/Riavvia servizio
 valutabot - Dai una voto al servizio
 rating - Media valutazioni utenti
+bibliprovincia - Lista biblioteche di una provincia

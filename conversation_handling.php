@@ -14,15 +14,15 @@ function handle_conversation($chat_id, $from_id, $message, $conv) {
 
     switch($topic) {
 	case valutabot:
-		return handle_vote ($chat_id, $from_id, $message, $conv);
+		return handle_vote ($chat_id, $from_id, $message['text'], $conv[2]);
+	case bibliprovincia:
+		return handle_bibliprovincia ($chat_id, $from_id, $message['text'], $conv[2]);
 	default:
 		return false;
     }
 }
 
-function handle_vote($chat_id, $from_id, $message, $conv) {
-    $text = $message['text'];
-    $state = $conv[2];
+function handle_vote($chat_id, $from_id, $text, $state) {
     switch($state) {
         case 1:
 	    $vote = intval($text);
@@ -48,6 +48,43 @@ function handle_vote($chat_id, $from_id, $message, $conv) {
 
             db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
             return true;
+	default:
+	   return false;
+    }
+}
+
+function handle_bibliprovincia($chat_id, $from_id, $text, $state) {
+    switch($state) {
+        case 1:
+	    $prov = ucfirst(strtolower($text));
+	    $list = db_table_query("SELECT denominazione, provincia FROM biblioteche WHERE provincia = '$prov'");
+	    if ($list != null){
+		$bot_response = PROV_LIST_MSG_1 . "\n\n";
+		foreach ($list as $provincia => $p){
+			$bot_response .= $p[0] ." (" . $p[1] . ") \n";
+	        }
+		telegram_send_message($chat_id, $bot_response);
+	    }
+	    else{
+		telegram_send_message($chat_id, PROV_LIST_MSG_2);
+	    	db_perform_action("REPLACE INTO `conversation` VALUES($from_id, 'bibliprovincia', 2)");
+	    }
+	    return true;
+        case 2:
+	    $prov = ucfirst(strtolower($text));
+	    $list = db_table_query("SELECT denominazione, provincia FROM biblioteche WHERE provincia = '$prov'");
+	    if ($list != null){
+		$bot_response = PROV_LIST_MSG_1 . "\n\n";
+		foreach ($list as $provincia => $p){
+			$bot_response .= $p[0] ." (" . $p[1] . ") \n";
+	        }
+		telegram_send_message($chat_id, $bot_response);
+	    }
+	    else{
+		telegram_send_message($chat_id, PROV_LIST_MSG_3);
+	    	return false;
+	    }
+	    return true;
 	default:
 	   return false;
     }

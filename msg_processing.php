@@ -22,6 +22,12 @@ if (isset($message['text'])) {
 			telegram_send_message($chat_id, 'Ciao ' . $message['from']['first_name'] . '!' . "\n" . START_MSG);
 			break;
 		}
+		case 'bibliprovincia':{
+        		db_perform_action("REPLACE INTO `conversation` VALUES($from_id, 'bibliprovincia', 1)");
+
+       			telegram_send_message($chat_id, PROV_LIST_MSG_0);
+			break;
+		}
 		case 'valutabot':{
         		db_perform_action("REPLACE INTO `conversation` VALUES($from_id, 'valutabot', 1)");
 
