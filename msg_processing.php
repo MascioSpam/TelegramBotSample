@@ -8,7 +8,7 @@ $from_id = $message['from']['id'];
 
 if (isset($message['text'])) {
     // Got an incoming text message
-    $text = $message['text'];
+    $text = $message['text'] = strtolower($message['text']);
     $conv = db_row_query("SELECT `user_id`, `topic`, `state` FROM `conversation` WHERE `user_id` = $from_id");
     $handled_conv = true;
 
@@ -18,7 +18,7 @@ if (isset($message['text'])) {
 
     else if (strpos($text, "/") === 0) {
 	// Received a command
-	switch (substr($message['text'], 1)){
+	switch (substr($text, 1)){
 		case 'start':{
 			telegram_send_message($chat_id, 'Ciao ' . $message['from']['first_name'] . '!' . "\n" . START_MSG);
 			break;
