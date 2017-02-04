@@ -75,6 +75,9 @@ if (isset($message['text'])) {
 
 	$json_response = json_decode($response, true);
 	$bot_response = $json_response['botsay'];
+
+	$bot_response = replace_placeholder ($bot_response, $message);
+
 	$bot_response = process_response($bot_response);
 	
 	telegram_send_message($chat_id, $bot_response);
@@ -85,5 +88,9 @@ if (isset($message['text'])) {
 }
 else {
     //telegram_send_message($chat_id, 'Sorry, I understand only text messages at the moment!');
+}
+
+function replace_placeholder ($response, $msg){
+	return str_replace("*usname*", $msg['from']['first_name'], $response);
 }
 ?>
