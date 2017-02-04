@@ -1,6 +1,7 @@
 <?php
 
 require('conversation_handling.php');
+require('natural_language_handling.php');
 
 $message_id = $message['message_id'];
 $chat_id = $message['chat']['id'];
@@ -8,7 +9,7 @@ $from_id = $message['from']['id'];
 
 if (isset($message['text'])) {
     // Got an incoming text message
-    $text = $message['text'] = strtolower($message['text']);
+    $text = $message['text'];
     $conv = db_row_query("SELECT `user_id`, `topic`, `state` FROM `conversation` WHERE `user_id` = $from_id");
     $handled_conv = true;
 
@@ -49,6 +50,9 @@ if (isset($message['text'])) {
 	}
     }
     else {
+	//
+	$message['text'] = strtoupper($message['text']);
+
 	// Received a text message
         $handle = prepare_curl_api_request(PROGRAMO_API_URI_BASE, 'POST',
     		array(
@@ -71,6 +75,8 @@ if (isset($message['text'])) {
 
 	$json_response = json_decode($response, true);
 	$bot_response = $json_response['botsay'];
+	$bot_response = process_response($bot_response);
+	
 	telegram_send_message($chat_id, $bot_response);
     }
 
@@ -78,6 +84,6 @@ if (isset($message['text'])) {
     	db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
 }
 else {
-    telegram_send_message($chat_id, 'Sorry, I understand only text messages at the moment!');
+    //telegram_send_message($chat_id, 'Sorry, I understand only text messages at the moment!');
 }
 ?>
