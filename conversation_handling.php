@@ -14,15 +14,17 @@ function handle_conversation($chat_id, $from_id, $message, $conv) {
 
     switch($topic) {
 	case valutabot:
-		return handle_vote ($chat_id, $from_id, $message['text'], $conv[2]);
+		return handle_vote ($chat_id, $from_id, $message['text'], $conv[2],$message);
 	case biblicom:
-		return handle_biblicom ($chat_id, $from_id, $message['text'], $conv[2]);
+		return handle_biblicom ($chat_id, $from_id, $message['text'], $conv[2],$message);
+	case segnala:
+		return handle_segnala ($chat_id, $from_id, $message['text'], $conv[2],$message);
 	default:
 		return false;
     }
 }
 
-function handle_vote($chat_id, $from_id, $text, $state) {
+function handle_vote($chat_id, $from_id, $text, $state,$message) {
     switch($state) {
         case 1:
 	    $vote = intval($text);
@@ -53,7 +55,7 @@ function handle_vote($chat_id, $from_id, $text, $state) {
     }
 }
 
-function handle_biblicom($chat_id, $from_id, $text, $state) {
+function handle_biblicom($chat_id, $from_id, $text, $state,$message) {
     switch($state) {
         case 1:
 	    $com = ucwords(strtolower($text));
@@ -87,6 +89,36 @@ function handle_biblicom($chat_id, $from_id, $text, $state) {
 	    }
 	    db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
 	    return true;
+	default:
+	   return false;
+    }
+}
+
+
+
+function handle_segnala($chat_id, $from_id, $text, $state,$message) {
+    switch($state) {
+        case 1:
+		if (isset($message['location'])){
+		   db_perform_action("REPLACE INTO `conversation` VALUES($from_id, 'segnala', 2)");
+		   $lat = $message['location']['latitude'];
+		   $lng = $message['location']['longitude'];
+
+		   db_perform_action("INSERT INTO `aulee` (`nome`, `lat`, `lng`, `us_id`) VALUES ('*name*', '$lat', '$lng', '$from_id')");
+		   
+		   telegram_send_message($chat_id, SEGNALA_MSG_1);
+		   return true;
+		}
+		else{
+		   db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
+		   telegram_send_message($chat_id, SEGNALA_MSG_1_ERROR);
+		   return false;
+		}
+	case 2:
+		db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
+		db_perform_action("UPDATE `aulee` SET `nome` = '$text' WHERE `aulee`.`us_id` = $from_id;");
+		telegram_send_message($chat_id, SEGNALA_MSG_2);
+		return true;
 	default:
 	   return false;
     }

@@ -2,3 +2,4 @@ start - Avvia/Riavvia servizio
 valutabot - Dai una voto al servizio
 rating - Media valutazioni utenti
 biblicom - Lista biblioteche di un comune
+segnala - Segnala un aula studio
