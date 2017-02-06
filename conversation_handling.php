@@ -3,11 +3,11 @@
 function handle_conversation($chat_id, $from_id, $message, $conv) {
     if($conv === false) {
         // Query failed
-        return false;
+        return "false";
     }
     if($conv == null) {
         // No existing conversation with the user
-        return false;
+        return "false";
     }
 
     $topic = $conv[1];
@@ -20,7 +20,7 @@ function handle_conversation($chat_id, $from_id, $message, $conv) {
 	case segnala:
 		return handle_segnala ($chat_id, $from_id, $message['text'], $conv[2],$message);
 	default:
-		return false;
+		return "false";
     }
 }
 
@@ -30,28 +30,25 @@ function handle_vote($chat_id, $from_id, $text, $state,$message) {
 	    $vote = intval($text);
 	    if ($vote >= 1 && $vote <= 5){
 		db_perform_action ("REPLACE INTO bot_votes VALUES($from_id, $vote)");
-            	telegram_send_message($chat_id, VALUTABOT_MSG_1);
 		db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
-            	return true;
+            	return VALUTABOT_MSG_1;
 	    }
 	    else {
 		db_perform_action("REPLACE INTO `conversation` VALUES($from_id, 'valutabot', 2)");
-		telegram_send_message($chat_id, VALUTABOT_MSG_2);
-		return true;
+		return VALUTABOT_MSG_2;
 	    }
 	case 2:
 	    $vote = intval($text);
+            db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
+
 	    if ($vote >= 1 && $vote <= 5){
 		db_perform_action ("REPLACE INTO bot_votes VALUES($from_id, $vote)");
-            	telegram_send_message($chat_id, VALUTABOT_MSG_1);
+            	return VALUTABOT_MSG_1;
 	    }
 	    else
-		telegram_send_message($chat_id, VALUTABOT_MSG_3);
-
-            db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
-            return true;
+		return VALUTABOT_MSG_3;
 	default:
-	   return false;
+	   return "false";
     }
 }
 
@@ -65,32 +62,30 @@ function handle_biblicom($chat_id, $from_id, $text, $state,$message) {
 		foreach ($list as $com => $p){
 			$bot_response .= $p[0] ." (" . $p[1] . ") \n";
 	        }
-		telegram_send_message($chat_id, $bot_response);
 		db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
+		return $bot_response;
 	    }
 	    else{
-		telegram_send_message($chat_id, COM_LIST_MSG_2);
 	    	db_perform_action("REPLACE INTO `conversation` VALUES($from_id, 'biblicom', 2)");
+		return COM_LIST_MSG_2;
 	    }
-	    return true;
         case 2:
 	    $com = ucwords(strtolower($text));
+	    db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
 	    $list = db_table_query("SELECT denominazione, comune FROM biblioteche WHERE comune = '$com'");
+
 	    if ($list != null){
 		$bot_response = COM_LIST_MSG_1 . " $com:\n";
 		foreach ($list as $com => $p){
 			$bot_response .= $p[0] ." (" . $p[1] . ") \n";
 	        }
-		telegram_send_message($chat_id, $bot_response);
+		return $bot_response;
 	    }
 	    else{
-		telegram_send_message($chat_id, COM_LIST_MSG_3);
-	    	return false;
+		return COM_LIST_MSG_3;
 	    }
-	    db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
-	    return true;
 	default:
-	   return false;
+	   return "false";
     }
 }
 
@@ -106,21 +101,18 @@ function handle_segnala($chat_id, $from_id, $text, $state,$message) {
 
 		   db_perform_action("INSERT INTO `aulee` (`nome`, `lat`, `lng`, `us_id`) VALUES ('*name*', '$lat', '$lng', '$from_id')");
 		   
-		   telegram_send_message($chat_id, SEGNALA_MSG_1);
-		   return true;
+		   return SEGNALA_MSG_1;
 		}
 		else{
 		   db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
-		   telegram_send_message($chat_id, SEGNALA_MSG_1_ERROR);
-		   return false;
+		   return SEGNALA_MSG_1_ERROR;
 		}
 	case 2:
 		db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
 		db_perform_action("UPDATE `aulee` SET `nome` = '$text' WHERE `aulee`.`us_id` = $from_id;");
-		telegram_send_message($chat_id, SEGNALA_MSG_2);
-		return true;
+		return SEGNALA_MSG_2;
 	default:
-	   return false;
+	   return "false";
     }
 }
 ?>

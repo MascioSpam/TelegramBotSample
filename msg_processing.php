@@ -2,20 +2,22 @@
 
 require('conversation_handling.php');
 require('natural_language_handling.php');
+require('lib_database.php');
 
 $message_id = $message['message_id'];
 $chat_id = $message['chat']['id'];
 $from_id = $message['from']['id'];
-$conv = db_row_query("SELECT `user_id`, `topic`, `state` FROM `conversation` WHERE `user_id` = $from_id");
 $handled_conv = false;
+$conv = db_row_query("SELECT `user_id`, `topic`, `state` FROM `conversation` WHERE `user_id` = $from_id");
 
 if ($conv != null){
    $handled_conv = handle_conversation($chat_id, $from_id, $message, $conv);
-   if (!$handled_conv)
+   if ($handled_conv == "false")
 	db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
+   else telegram_send_message($chat_id, $handled_conv);
 }
 
-if (isset($message['text']) && !$handled_conv) {
+if (isset($message['text']) && $handled_conv == "false") {
     // Got an incoming text message
     $text = $message['text'];
     
