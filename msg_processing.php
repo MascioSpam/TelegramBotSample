@@ -18,14 +18,64 @@ if ($conv != null){
 
 if (isset($message['text']) && $handled_conv === "false") {
     // Got an incoming text message
-    $text = $message['text'];
     
 
-    if (strpos($text, "/") === 0) {
+    if (strpos($message['text'], "/") === 0) {
 	// Received a command
-	switch (substr($text, 1)){
+	command_handle ($chat_id, $from_id, $message, $message['text']);
+    }
+    else {
+	//
+	$message['text'] = strtoupper($message['text']);
+	$message['text'] = natural_language($message['text']);
+
+	// Received a text message
+        $handle = prepare_curl_api_request(PROGRAMO_API_URI_BASE, 'POST',
+    		array(
+        		'say' => $message['text'],
+        		'bot_id' => PROGRAMO_BOT_ID,
+        		'format' => 'json',
+        		'convo_id' => 'telegram' . $chat_id
+    		),
+    		null,
+    		array(
+        		'Content-Type: application/x-www-form-urlencoded',
+        		'Accept: application/json'
+    		)
+	);
+
+	$response = perform_curl_request($handle);
+	if($response === false) {
+    		Logger::fatal('Failed to perform request', __FILE__);
+	}
+
+	$json_response = json_decode($response, true);
+	$bot_response = $json_response['botsay'];
+
+	if (strpos($bot_response, "/") === 0) {
+		// Received a command
+		command_handle ($chat_id, $from_id, $message, $bot_response);
+        }
+	else{
+		$bot_response = replace_placeholder ($bot_response, $message);
+
+		$bot_response = process_response($bot_response);
+	
+		telegram_send_message($chat_id, $bot_response);
+	}
+    }
+}
+else {
+    //telegram_send_message($chat_id, 'Sorry, I understand only text messages at the moment!');
+}
+
+
+
+function command_handle ($chat_id, $from_id, $message, $text){
+    switch (substr($text, 1)){
 		case 'start':{
-			telegram_send_message($chat_id, replace_placeholder (START_MSG, $message));
+			$keyboard = prepare_button_array (array(array('Lista Biblioteche', 'Valuta bot'), array('Rating bot', 'Segnala aula studio')));
+			telegram_send_message($chat_id, replace_placeholder (START_MSG, $message), $keyboard);
 			break;
 		}
 		case 'biblicom':{
@@ -59,42 +109,5 @@ if (isset($message['text']) && $handled_conv === "false") {
 			break;
 		}
 	}
-    }
-    else {
-	//
-	$message['text'] = strtoupper($message['text']);
-
-	// Received a text message
-        $handle = prepare_curl_api_request(PROGRAMO_API_URI_BASE, 'POST',
-    		array(
-        		'say' => $message['text'],
-        		'bot_id' => PROGRAMO_BOT_ID,
-        		'format' => 'json',
-        		'convo_id' => 'telegram' . $chat_id
-    		),
-    		null,
-    		array(
-        		'Content-Type: application/x-www-form-urlencoded',
-        		'Accept: application/json'
-    		)
-	);
-
-	$response = perform_curl_request($handle);
-	if($response === false) {
-    		Logger::fatal('Failed to perform request', __FILE__);
-	}
-
-	$json_response = json_decode($response, true);
-	$bot_response = $json_response['botsay'];
-
-	$bot_response = replace_placeholder ($bot_response, $message);
-
-	$bot_response = process_response($bot_response);
-	
-	telegram_send_message($chat_id, $bot_response);
-    }
-}
-else {
-    //telegram_send_message($chat_id, 'Sorry, I understand only text messages at the moment!');
 }
 ?>
