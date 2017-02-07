@@ -37,7 +37,8 @@ if (isset($message['text']) && $handled_conv === "false") {
 		case 'valutabot':{
         		db_perform_action("REPLACE INTO `conversation` VALUES($from_id, 'valutabot', 1)");
 
-       			telegram_send_message($chat_id, VALUTABOT_MSG_0);
+			$keyboard = prepare_button_array (array(array('1', '2', '3'), array('4', '5', 'Annulla')));
+       			telegram_send_message($chat_id, VALUTABOT_MSG_0, $keyboard);
 			break;
 		}
 		case 'rating':{
