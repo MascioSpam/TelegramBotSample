@@ -16,6 +16,8 @@
 		'comuni' => 'comune',
 	);
 
+	$result = str_ireplace(array_keys($rep_bib), $rep_bib, $message);
+	$result = str_ireplace(array_keys($rep_l), $rep_l, $result);
 	
 	return $result;
     }
