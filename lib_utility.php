@@ -67,3 +67,7 @@ function prepare_button_array ($array){
         				'one_time_keyboard' => true,
         				'resize_keyboard' => true));
 }
+
+function replace_placeholder ($response, $msg){
+	return str_replace("*usname*", $msg['from']['first_name'], $response);
+}

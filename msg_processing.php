@@ -96,8 +96,4 @@ if (isset($message['text']) && $handled_conv === "false") {
 else {
     //telegram_send_message($chat_id, 'Sorry, I understand only text messages at the moment!');
 }
-
-function replace_placeholder ($response, $msg){
-	return str_replace("*usname*", $msg['from']['first_name'], $response);
-}
 ?>
