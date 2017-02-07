@@ -60,3 +60,10 @@ function starts_with($text = '', $substring = '') {
 function extract_command_payload($text = '') {
     return mb_ereg_replace("^\/[a-zA-Z0-9_]*( |$)", '', $text);
 }
+
+function prepare_button_array ($array){
+	return array('reply_markup' => array(
+        				'keyboard' => $array,
+        				'one_time_keyboard' => true,
+        				'resize_keyboard' => true));
+}
