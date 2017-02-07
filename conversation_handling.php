@@ -34,19 +34,11 @@ function handle_vote($chat_id, $from_id, $text, $state,$message) {
             	return VALUTABOT_MSG_1;
 	    }
 	    else {
-		db_perform_action("REPLACE INTO `conversation` VALUES($from_id, 'valutabot', 2)");
-		return VALUTABOT_MSG_2;
+                db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
+		if ($text != "Annulla")
+			return VALUTABOT_MSG_2;
+		else	return VALUTABOT_MSG_3;
 	    }
-	case 2:
-	    $vote = intval($text);
-            db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
-
-	    if ($vote >= 1 && $vote <= 5){
-		db_perform_action ("REPLACE INTO bot_votes VALUES($from_id, $vote)");
-            	return VALUTABOT_MSG_1;
-	    }
-	    else
-		return VALUTABOT_MSG_3;
 	default:
 	   return "false";
     }
