@@ -7,8 +7,6 @@
  * API sample, using Microsoft Bing reverse geolocation API.
  */
 
-define('BING_API', '');
-
 include ('../lib.php');
 
 if(count($argv) < 3) {
