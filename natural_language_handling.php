@@ -1,6 +1,6 @@
 <?php
 
-    function natural_language($chat_id, $from_id, $message, $conv) {
+    function natural_language($message) {
 	$rep_bib = Array(
 		'biblioteche' => 'biblioteca',
 		'libreria' => 'biblioteca',
@@ -16,10 +16,8 @@
 		'comuni' => 'comune',
 	);
 
-	$message['text'] = str_replace(array_keys($rep_bib), $rep_bib, $message['text']);
-	$message['text'] = str_replace(array_keys($rep_l), $rep_l, $message['text']);
 	
-	return $message['text'];
+	return $result;
     }
 
     function process_response($bot_response) {
