@@ -6,17 +6,17 @@ require('natural_language_handling.php');
 $message_id = $message['message_id'];
 $chat_id = $message['chat']['id'];
 $from_id = $message['from']['id'];
-$handled_conv = "false";
+$handled_conv = false;
 $conv = db_row_query("SELECT `user_id`, `topic`, `state` FROM `conversation` WHERE `user_id` = $from_id");
 
 if ($conv != null){
    $handled_conv = handle_conversation($chat_id, $from_id, $message, $conv);
-   if ($handled_conv == "false")
+   if ($handled_conv == false)
 	db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
-   else telegram_send_message($chat_id, $handled_conv);
+   else if (is_string ($handled_conv))telegram_send_message($chat_id, $handled_conv);
 }
 
-if (isset($message['text']) && $handled_conv === "false") {
+if (isset($message['text']) && $handled_conv == false) {
     // Got an incoming text message
     
 
@@ -79,13 +79,13 @@ function command_handle ($chat_id, $from_id, $message, $text){
 			break;
 		}
 		case 'biblicom':{
-        		db_perform_action("REPLACE INTO `conversation` VALUES($from_id, 'biblicom', 1)");
+        		db_perform_action("REPLACE INTO `conversation` (`user_id`, `topic`, `state`) VALUES($from_id, 'biblicom', 1)");
 
        			telegram_send_message($chat_id, COM_LIST_MSG_0);
 			break;
 		}
 		case 'valutabot':{
-        		db_perform_action("REPLACE INTO `conversation` VALUES($from_id, 'valutabot', 1)");
+        		db_perform_action("REPLACE INTO `conversation` (`user_id`, `topic`, `state`) VALUES($from_id, 'valutabot', 1)");
 
 			$keyboard = prepare_button_array (array(array('1', '2', '3'), array('4', '5', 'Annulla')));
        			telegram_send_message($chat_id, VALUTABOT_MSG_0, $keyboard);
@@ -99,7 +99,7 @@ function command_handle ($chat_id, $from_id, $message, $text){
 			break;
 		}
 		case 'segnala':{
-			db_perform_action("REPLACE INTO `conversation` VALUES($from_id, 'segnala', 1)");
+			db_perform_action("REPLACE INTO `conversation` (`user_id`, `topic`, `state`) VALUES($from_id, 'segnala', 1)");
 
        			telegram_send_message($chat_id, SEGNALA_MSG_0);
 			break;
