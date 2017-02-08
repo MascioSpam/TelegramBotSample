@@ -100,7 +100,10 @@ function handle_biblicom($chat_id, $from_id, $text, $state,$message) {
 		   	$keyboard = prepare_button_array (array(array('Continua', 'Annulla')));
 	       	   	telegram_send_message($chat_id, str_replace("*listnum*", $vals[5] - $showed, COM_LIST_MSG_4), $keyboard);
 		   }
-		   else return COM_LIST_MSG_6;
+		   else{
+			db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
+			return COM_LIST_MSG_6;
+		   }
 	   }
 	   else {
 		db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
