@@ -69,5 +69,6 @@ function prepare_button_array ($array){
 }
 
 function replace_placeholder ($response, $msg){
-	return str_replace("*usname*", $msg['from']['first_name'], $response);
+	$r =  str_replace("*usname*", $msg['from']['first_name'], $response);
+	return $r;
 }
