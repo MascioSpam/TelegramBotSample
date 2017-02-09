@@ -139,7 +139,9 @@ function handle_vicino($chat_id, $from_id, $text, $state,$message) {
 		}
 		else {
 			db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
-			return VICINO_MSG_ERROR;
+			if ($text == "Annulla")
+				return true;
+			else return VICINO_MSG_ERROR;
 		}
         case 2:
 		$row = db_row_query("SELECT * FROM conversation WHERE `user_id` = $from_id");
@@ -149,7 +151,7 @@ function handle_vicino($chat_id, $from_id, $text, $state,$message) {
 						WHERE lat IS NOT NULL AND lat != 0 AND lng IS NOT NULL AND lng != 0
   						ORDER BY distance ASC
   						LIMIT 1");
-			telegram_send_message($chat_id, "La biblioteca più vicina a te e' '".$res[1]."'");
+			telegram_send_message($chat_id, "La biblioteca più vicina a te e' :\n".$res[1]);
 			return find_address($row[4],$row[5]) . "\nClicca sul link per aprire il navigatore:\n https://www.google.com/maps/dir/Current+Location/".$row[4].",".$row[5];
 		}
 		else if ($text == "Aula studio vicina a te"){
@@ -157,7 +159,7 @@ function handle_vicino($chat_id, $from_id, $text, $state,$message) {
   						FROM `aulee`
   						ORDER BY distance ASC
   						LIMIT 1");
-			telegram_send_message($chat_id, "L'aula studio più vicina a te e' '".$res[1]."'");
+			telegram_send_message($chat_id, "L'aula studio più vicina a te e' :\n".$res[1]);
 			return find_address($row[4],$row[5]) . "\nClicca sul link per aprire il navigatore:\n https://www.google.com/maps/dir/Current+Location/".$row[4].",".$row[5];
 		}
 		else return false;
