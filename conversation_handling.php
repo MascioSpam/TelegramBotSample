@@ -142,29 +142,68 @@ function handle_vicino($chat_id, $from_id, $text, $state,$message) {
 			return VICINO_MSG_ERROR;
 		}
         case 2:
+		$row = db_row_query("SELECT * FROM conversation WHERE `user_id` = $from_id");
 		if ($text == "Biblioteca vicina a te"){
-			$row = db_row_query("SELECT * FROM conversation WHERE `user_id` = $from_id");
 			$res = db_row_query("SELECT *, SQRT(POW($row[4] - lat, 2) + POW($row[5] - lng, 2)) AS distance
   						FROM `biblioteche`
 						WHERE lat IS NOT NULL AND lat != 0 AND lng IS NOT NULL AND lng != 0
   						ORDER BY distance ASC
   						LIMIT 1");
 			telegram_send_message($chat_id, "La biblioteca più vicina a te e' '".$res[1]."'");
-			return true;
+			return find_address($row[4],$row[5]) . "\nClicca sul link per aprire il navigatore:\n https://www.google.com/maps/dir/Current+Location/".$row[4].",".$row[5];
 		}
 		else if ($text == "Aula studio vicina a te"){
-			$row = db_row_query("SELECT * FROM conversation WHERE `user_id` = $from_id");
 			$res = db_row_query("SELECT *, SQRT(POW($row[4] - lat, 2) + POW($row[5] - lng, 2)) AS distance
   						FROM `aulee`
   						ORDER BY distance ASC
   						LIMIT 1");
 			telegram_send_message($chat_id, "L'aula studio più vicina a te e' '".$res[1]."'");
-			return true;
+			return find_address($row[4],$row[5]) . "\nClicca sul link per aprire il navigatore:\n https://www.google.com/maps/dir/Current+Location/".$row[4].",".$row[5];
 		}
 		else return false;
 	default:
 	   return false;
     }
+}
+
+function find_address($lat,$lng) {
+	$handle = prepare_curl_api_request("http://dev.virtualearth.net/REST/v1/Locations/$lat,$lng?key=" . BING_API, 'GET');
+
+	$response = perform_curl_request($handle);
+	if($response === false) {
+	    return "Failed to perform request.";
+	}
+
+	$json = json_decode($response, true);
+	if(!$json['resourceSets']) {
+	    return "Response contains no resource sets";
+	}
+
+	$sets = $json['resourceSets'];
+	$s = 1;
+
+	$response = "";
+
+	foreach($sets as $set) {
+
+	    $resources = $sets[0]['resources'];
+	    $r = 1;
+
+	    foreach($resources as $resource) {
+		$address = $resource['address'];
+		$confidence = $resource['confidence'];
+
+		$response .= "Indirizzo: ";
+		$response .= $address['formattedAddress'];
+
+		$response .= "\nConfidenza: $confidence";
+
+		$r++;
+	    }
+
+	    $s++;
+	}
+	return $response;
 }
 
 function lista_bib ($chat_id, $from_id, $text, $state,$message) {
