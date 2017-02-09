@@ -74,7 +74,7 @@ else {
 function command_handle ($chat_id, $from_id, $message, $text){
     switch (substr($text, 1)){
 		case 'start':{
-			$keyboard = prepare_button_array (array(array('Lista Biblioteche', 'Valuta bot'), array('Rating bot', 'Segnala aula studio')));
+			$keyboard = prepare_button_array (array(array('Lista Biblioteche', 'Valuta bot'), array('Rating bot', 'Segnala aula studio'), array('Trova biblioteca/aula studio più vicina alla tua posizione')));
 			telegram_send_message($chat_id, replace_placeholder (START_MSG, $message), $keyboard);
 			break;
 		}
@@ -102,6 +102,11 @@ function command_handle ($chat_id, $from_id, $message, $text){
 			db_perform_action("REPLACE INTO `conversation` (`user_id`, `topic`, `state`) VALUES($from_id, 'segnala', 1)");
 
        			telegram_send_message($chat_id, SEGNALA_MSG_0);
+			break;
+		}
+		case 'vicino':{
+			db_perform_action("REPLACE INTO `conversation` (`user_id`, `topic`, `state`) VALUES($from_id, 'vicino', 1)");
+			telegram_send_message($chat_id, VICINO_MSG_0);
 			break;
 		}
 		default:{

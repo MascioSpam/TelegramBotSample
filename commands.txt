@@ -3,3 +3,4 @@ valutabot - Dai una voto al servizio
 rating - Media valutazioni utenti
 biblicom - Lista biblioteche di un comune
 segnala - Segnala un aula studio
+vicino - Trova biblioteca/aula studio più vicina alla tua posizione
