@@ -48,53 +48,23 @@ function handle_biblicom($chat_id, $from_id, $text, $state,$message) {
     switch($state) {
         case 2:
         case 1:
-	    $com = ucwords(strtolower($text));
-	    $n_row = db_scalar_query("SELECT COUNT(*) FROM biblioteche WHERE comune = '$com'");
-	    if ($n_row > 40){
-		//result too big to show in one shot
-		db_perform_action("REPLACE INTO `conversation` (`q_rows`, `q_offset`, `attr`, `user_id`, `topic`, `state`) VALUES($n_row, 40, '$com', $from_id, 'biblicom', 3)");
-	    }
-	    else 
-		db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
-	    $list = db_table_query("SELECT denominazione, comune FROM biblioteche WHERE comune = '$com' LIMIT 40");
-	    if ($list != null){
-		$bot_response = COM_LIST_MSG_1 . " $com:\n\n";
-		foreach ($list as $com => $p){
-			$bot_response .= $p[0] ." (" . $p[1] . ") \n";
-	        }
-		$n_row -= 40;
-		if ($n_row > 0){
-		  $keyboard = prepare_button_array (array(array('Continua', 'Annulla')));
-	       	  telegram_send_message($chat_id, $bot_response . str_replace("*listnum*", $n_row, COM_LIST_MSG_4), $keyboard);
-		}
-	       	else
-		  telegram_send_message($chat_id, $bot_response);
-		return true;
-	    }
-	    else if ($state == 1){
-	    	db_perform_action("REPLACE INTO `conversation` (`user_id`, `topic`, `state`) VALUES($from_id, 'biblicom', 2)");
-		return COM_LIST_MSG_2;
-	    } else {
-		db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
-		return COM_LIST_MSG_3;
-	    }
-	
+	    return lista_bib ($chat_id, $from_id, $text, $state,$message);
         case 3:
 	   if ($text == "Continua"){
 		   $vals = db_row_query("SELECT * FROM `conversation` WHERE `user_id` = $from_id");
 		   $com = $vals[3];
 		   $offset = intval($vals[4]);
 
-		   $list = db_table_query("SELECT denominazione, comune FROM biblioteche WHERE comune = '$com' LIMIT $vals[4],40");
+		   $list = db_table_query("SELECT denominazione, comune FROM biblioteche WHERE comune = '$com' LIMIT $vals[4],30");
 		   if ($list != null){
 			$bot_response = "";
 			foreach ($list as $val[3] => $p){
 				$bot_response .= $p[0] ." (" . $p[1] . ") \n";
 			}
 			telegram_send_message($chat_id, $bot_response);
-		   }
+		   }else telegram_send_message($chat_id, "Lista vuota!");
 
-	           $showed = $offset + 40;
+	           $showed = $offset + 30;
 		   if ($vals[5] - $showed > 0){
 			db_perform_action("REPLACE INTO `conversation` (`attr`,`q_rows`, `q_offset`, `user_id`, `topic`, `state`) VALUES('$com', $vals[5], $showed, $from_id, 'biblicom', 3)");
 		   	$keyboard = prepare_button_array (array(array('Continua', 'Annulla')));
@@ -143,5 +113,38 @@ function handle_segnala($chat_id, $from_id, $text, $state,$message) {
 	default:
 	   return false;
     }
+}
+
+function lista_bib ($chat_id, $from_id, $text, $state,$message) {
+	$com = ucwords(strtolower($text));
+	$n_row = db_scalar_query("SELECT COUNT(*) FROM biblioteche WHERE comune = '$com'");
+	if ($n_row > 30){
+		//result too big to show in one shot
+		db_perform_action("REPLACE INTO `conversation` (`q_rows`, `q_offset`, `attr`, `user_id`, `topic`, `state`) VALUES($n_row, 30, '$com', $from_id, 'biblicom', 3)");
+	}
+	else 
+		db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
+	$list = db_table_query("SELECT denominazione, comune FROM biblioteche WHERE comune = '$com' LIMIT 30");
+	if ($list != null){
+		$bot_response = COM_LIST_MSG_1 . " $com:\n\n";
+		foreach ($list as $com => $p){
+			$bot_response .= $p[0] ." (" . $p[1] . ") \n";
+	        }
+		$n_row -= 30;
+		if ($n_row > 0){
+		  $keyboard = prepare_button_array (array(array('Continua', 'Annulla')));
+	       	  telegram_send_message($chat_id, $bot_response . str_replace("*listnum*", $n_row, COM_LIST_MSG_4), $keyboard);
+		}
+	       	else
+		  telegram_send_message($chat_id, $bot_response);
+		return true;
+	}
+	else if ($state == 1){
+	    	db_perform_action("REPLACE INTO `conversation` (`user_id`, `topic`, `state`) VALUES($from_id, 'biblicom', 2)");
+		return COM_LIST_MSG_2;
+	} else {
+		db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
+		return COM_LIST_MSG_3;
+	}
 }
 ?>
