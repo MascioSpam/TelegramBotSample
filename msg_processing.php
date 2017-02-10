@@ -74,7 +74,7 @@ else {
 function command_handle ($chat_id, $from_id, $message, $text){
     switch (substr($text, 1)){
 		case 'start':{
-			$keyboard = prepare_button_array (array(array('Lista Biblioteche', 'Valuta bot'), array('Rating bot', 'Segnala aula studio'), array("Vicino alla tua posizione")));
+			$keyboard = prepare_button_array (array(array('Lista Biblioteche'), array('Valuta bot', 'Rating bot'), array('Segnala aula studio'), array("Vicino alla tua posizione")));
 			telegram_send_message($chat_id, replace_placeholder (START_MSG, $message), $keyboard);
 			break;
 		}
