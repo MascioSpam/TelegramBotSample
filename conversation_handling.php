@@ -126,7 +126,7 @@ function handle_segnala($chat_id, $from_id, $text, $state,$message) {
 		   $lat = $message['location']['latitude'];
 		   $lng = $message['location']['longitude'];
 
-		   db_perform_action("INSERT INTO `aulee` (`nome`, `lat`, `lng`, `us_id`) VALUES ('*name*', '$lat', '$lng', '$from_id')");
+		   db_perform_action("INSERT INTO `aule` (`nome`, `lat`, `lng`, `us_id`) VALUES ('*name*', '$lat', '$lng', '$from_id')");
 		   
 		   telegram_send_message($chat_id, SEGNALA_MSG_1, prepare_button_array(array(array('Annulla segnalazione'))));
 		   return true;
@@ -140,11 +140,11 @@ function handle_segnala($chat_id, $from_id, $text, $state,$message) {
 	case 2:
 		db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
 		if ($text == "Annulla segnalazione"){
-			db_perform_action("DELETE FROM `aulee` WHERE `aulee`.`us_id` = $from_id");
+			db_perform_action("DELETE FROM `aule` WHERE `aule`.`us_id` = $from_id");
 			return SEGNALA_MSG_3;
 		}
 		else{
-			db_perform_action("UPDATE `aulee` SET `nome` = '$text' WHERE `aulee`.`us_id` = $from_id");
+			db_perform_action("UPDATE `aule` SET `nome` = '$text' WHERE `aule`.`us_id` = $from_id");
 			return SEGNALA_MSG_2;
 		}
 	default:
@@ -188,7 +188,7 @@ function handle_vicino($chat_id, $from_id, $text, $state,$message) {
 		}
 		else if ($text == "Aula studio vicina a te"){
 			$res = db_row_query("SELECT *, SQRT(POW($row[4] - lat, 2) + POW($row[5] - lng, 2)) AS distance
-  						FROM `aulee`
+  						FROM `aule`
   						ORDER BY distance ASC
   						LIMIT 1");
 			telegram_send_message($chat_id, "L'aula studio più vicina a te e' :\n".$res[1]);
