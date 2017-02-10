@@ -60,7 +60,7 @@ function handle_biblicom($chat_id, $from_id, $text, $state,$message) {
 		   $com = $vals[3];
 		   $offset = intval($vals[4]);
 
-		   $list = db_table_query("SELECT denominazione, comune FROM biblioteche WHERE comune = '$com' LIMIT $vals[4],30");
+		   $list = db_table_query("SELECT denominazione, comune FROM biblioteche WHERE comune = ".'"'.$com.'" LIMIT $vals[4],30');
 		   if ($list != null){
 			$bot_response = "";
 			foreach ($list as $val[3] => $p){
@@ -105,16 +105,25 @@ function handle_segnala($chat_id, $from_id, $text, $state,$message) {
 
 		   db_perform_action("INSERT INTO `aulee` (`nome`, `lat`, `lng`, `us_id`) VALUES ('*name*', '$lat', '$lng', '$from_id')");
 		   
-		   return SEGNALA_MSG_1;
+		   telegram_send_message($chat_id, SEGNALA_MSG_1, prepare_button_array(array(array('Annulla segnalazione'))));
+		   return true;
 		}
 		else{
 		   db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
-		   return SEGNALA_MSG_1_ERROR;
+		   if ($text == "No")
+			return true;
+		   else	return SEGNALA_MSG_1_ERROR;
 		}
 	case 2:
 		db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
-		db_perform_action("UPDATE `aulee` SET `nome` = '$text' WHERE `aulee`.`us_id` = $from_id");
-		return SEGNALA_MSG_2;
+		if ($text == "Annulla segnalazione"){
+			db_perform_action("DELETE FROM `aulee` WHERE `aulee`.`us_id` = $from_id");
+			return SEGNALA_MSG_3;
+		}
+		else{
+			db_perform_action("UPDATE `aulee` SET `nome` = '$text' WHERE `aulee`.`us_id` = $from_id");
+			return SEGNALA_MSG_2;
+		}
 	default:
 	   return false;
     }
@@ -210,14 +219,14 @@ function find_address($lat,$lng) {
 
 function lista_bib ($chat_id, $from_id, $text, $state,$message) {
 	$com = ucwords(strtolower($text));
-	$n_row = db_scalar_query("SELECT COUNT(*) FROM biblioteche WHERE comune = '$com'");
+	$n_row = db_scalar_query("SELECT COUNT(*) FROM biblioteche WHERE comune = ".'"'.$com.'"');
 	if ($n_row > 30){
 		//result too big to show in one shot
 		db_perform_action("REPLACE INTO `conversation` (`val_2`, `val_1`, `attr`, `user_id`, `topic`, `state`) VALUES($n_row, 30, '$com', $from_id, 'biblicom', 3)");
 	}
 	else 
 		db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
-	$list = db_table_query("SELECT denominazione, comune FROM biblioteche WHERE comune = '$com' LIMIT 30");
+	$list = db_table_query("SELECT denominazione, comune FROM biblioteche WHERE comune = ".'"'.$com.'" LIMIT 30');
 	if ($list != null){
 		$bot_response = COM_LIST_MSG_1 . " $com:\n\n";
 		foreach ($list as $com => $p){
