@@ -178,21 +178,21 @@ function handle_vicino($chat_id, $from_id, $text, $state,$message) {
         case 2:
 		$row = db_row_query("SELECT * FROM conversation WHERE `user_id` = $from_id");
 		if ($text == "Biblioteca vicina a te"){
-			$res = db_row_query("SELECT *, SQRT(POW($row[4] - lat, 2) + POW($row[5] - lng, 2)) AS distance
+			$res = db_row_query("SELECT lat,lng,denominazione, SQRT(POW($row[4] - lat, 2) + POW($row[5] - lng, 2)) AS distance
   						FROM `biblioteche`
 						WHERE lat IS NOT NULL AND lat != 0 AND lng IS NOT NULL AND lng != 0
   						ORDER BY distance ASC
   						LIMIT 1");
-			telegram_send_message($chat_id, "La biblioteca più vicina a te e' :\n".$res[1]);
-			return find_address($row[4],$row[5]) . "\nClicca sul link per aprire il navigatore:\n https://www.google.com/maps/dir/Current+Location/".$row[4].",".$row[5];
+			telegram_send_message($chat_id, "La biblioteca più vicina a te e' :\n".$res[2]);
+			return find_address($res[0],$res[1]) . "\nClicca sul link per aprire il navigatore:\n https://www.google.com/maps/dir/Current+Location/".$res[0].",".$row[1];
 		}
 		else if ($text == "Aula studio vicina a te"){
-			$res = db_row_query("SELECT *, SQRT(POW($row[4] - lat, 2) + POW($row[5] - lng, 2)) AS distance
+			$res = db_row_query("SELECT lat,lng,nome, SQRT(POW($row[4] - lat, 2) + POW($row[5] - lng, 2)) AS distance
   						FROM `aule`
   						ORDER BY distance ASC
   						LIMIT 1");
-			telegram_send_message($chat_id, "L'aula studio più vicina a te e' :\n".$res[1]);
-			return find_address($row[4],$row[5]) . "\nClicca sul link per aprire il navigatore:\n https://www.google.com/maps/dir/Current+Location/".$row[4].",".$row[5];
+			telegram_send_message($chat_id, "L'aula studio più vicina a te e' :\n".$res[2]);
+			return find_address($res[0],$res[1]) . "\nClicca sul link per aprire il navigatore:\n https://www.google.com/maps/dir/Current+Location/".$res[0].",".$res[1];
 		}
 		else return false;
 	default:
