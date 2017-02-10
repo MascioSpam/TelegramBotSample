@@ -13,6 +13,9 @@
 
 	$rep_seg = Array(
 		'segnalare' => 'segnala',
+		'vicinanze' => 'vicina',
+		'paraggi' => 'vicina',
+		'vicino' => 'vicina',
 	);
 
 	$result = str_ireplace(array_keys($rep_bib), $rep_bib, $message);
