@@ -101,7 +101,7 @@ function command_handle ($chat_id, $from_id, $message, $text){
 		case 'segnala':{
 			db_perform_action("REPLACE INTO `conversation` (`user_id`, `topic`, `state`) VALUES($from_id, 'segnala', 1)");
 
-       			telegram_send_message($chat_id, SEGNALA_MSG_0);
+       			telegram_send_message($chat_id, SEGNALA_MSG_0, prepare_button_array(array(array('No'))));
 			break;
 		}
 		case 'vicino':{
