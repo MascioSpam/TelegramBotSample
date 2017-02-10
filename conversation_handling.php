@@ -134,7 +134,7 @@ function handle_segnala($chat_id, $from_id, $text, $state,$message) {
 		else{
 		   db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
 		   if ($text == "No")
-			return true;
+			return SEGNALA_MSG_3;
 		   else	return SEGNALA_MSG_1_ERROR;
 		}
 	case 2:
