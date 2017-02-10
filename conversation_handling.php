@@ -62,7 +62,7 @@ function handle_biblicom($chat_id, $from_id, $text, $state,$message) {
 		   $com = $vals[3];
 		   $offset = intval($vals[4]);
 
-		   $list = db_table_query("SELECT denominazione, comune FROM biblioteche WHERE comune = ".'"'.$com.'" LIMIT $vals[4],30');
+		   $list = db_table_query("SELECT denominazione, comune FROM biblioteche WHERE comune = ".'"'.$com.'"' . "LIMIT $vals[4],30");
 		   if ($list != null){
 			$bot_response = "";
 			foreach ($list as $val[3] => $p){
