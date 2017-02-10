@@ -140,11 +140,11 @@ function handle_segnala($chat_id, $from_id, $text, $state,$message) {
 	case 2:
 		db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
 		if ($text == "Annulla segnalazione"){
-			db_perform_action("DELETE FROM `aule` WHERE `aule`.`us_id` = $from_id");
+			db_perform_action("DELETE FROM `aule` WHERE `aule`.`us_id` = $from_id AND `nome` = '*name*'");
 			return SEGNALA_MSG_3;
 		}
 		else{
-			db_perform_action("UPDATE `aule` SET `nome` = '$text' WHERE `aule`.`us_id` = $from_id");
+			db_perform_action("UPDATE `aule` SET `nome` = '$text' WHERE `aule`.`us_id` = $from_id AND `nome` = '*name*'");
 			return SEGNALA_MSG_2;
 		}
 	default:
