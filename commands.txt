@@ -2,5 +2,6 @@ start - Avvia/Riavvia servizio
 valutabot - Dai una voto al servizio
 rating - Media valutazioni utenti
 biblicom - Lista biblioteche di un comune
+biblicap - Lista biblioteche di un cap
 segnala - Segnala un aula studio
 vicino - Trova biblioteca/aula studio più vicina alla tua posizione

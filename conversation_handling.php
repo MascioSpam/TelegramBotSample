@@ -17,6 +17,8 @@ function handle_conversation($chat_id, $from_id, $message, $conv) {
 		return handle_vote ($chat_id, $from_id, $message['text'], $conv[2],$message);
 	case biblicom:
 		return handle_biblicom ($chat_id, $from_id, $message['text'], $conv[2],$message);
+	case biblicap:
+		return handle_biblicap ($chat_id, $from_id, $message['text'], $conv[2],$message);
 	case segnala:
 		return handle_segnala ($chat_id, $from_id, $message['text'], $conv[2],$message);
 	case vicino:
@@ -91,6 +93,27 @@ function handle_biblicom($chat_id, $from_id, $text, $state,$message) {
 	default:
 	   return false;
     }
+}
+
+
+function handle_biblicap($chat_id, $from_id, $text, $state,$message) {
+	$cap = ucwords(strtolower($text));
+	db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
+	$list = db_table_query("SELECT denominazione FROM biblioteche WHERE cap = ".'"'.$cap.'"');
+	if ($list != null){
+		$bot_response = CAP_LIST_MSG_1 . " $cap:\n\n";
+		foreach ($list as $cap => $p){
+			$bot_response .= $p[0] . $p[1] . "\n";
+	        }
+		return $bot_response;
+	}
+	else if ($state == 1){
+	    	db_perform_action("REPLACE INTO `conversation` (`user_id`, `topic`, `state`) VALUES($from_id, 'biblicap', 2)");
+		return CAP_LIST_MSG_2;
+	} else {
+		db_perform_action("DELETE FROM `conversation` WHERE `user_id` = $from_id");
+		return CAP_LIST_MSG_3;
+	}
 }
 
 
