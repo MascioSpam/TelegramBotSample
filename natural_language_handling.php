@@ -15,11 +15,6 @@
 		'segnalare' => 'segnala',
 	);
 
-	$rep_l = Array(
-		'province' => 'provincia',
-		'comuni' => 'comune',
-	);
-
 	$result = str_ireplace(array_keys($rep_bib), $rep_bib, $message);
 	$result = str_ireplace(array_keys($rep_seg), $rep_seg, $result);
 	$result = str_ireplace(array_keys($rep_l), $rep_l, $result);
@@ -37,15 +32,9 @@
 	$bot_response = "";
 	
 	switch ($attr[0]){
-		case 'com': 
-			$sql = "SELECT denominazione, comune FROM biblioteche WHERE comune = '$attr[2]'";
-			break;
 		case 'cap':
 			$sql = "SELECT denominazione, cap FROM biblioteche WHERE cap = '$attr[2]'";
 			$bot_response = CAP_LIST_MSG_1;
-			break;
-		case 'pro':
-			$sql = "SELECT denominazione, provincia FROM biblioteche WHERE provincia = '$attr[2]'";
 			break;
 		default:
 			return $bot_response;
