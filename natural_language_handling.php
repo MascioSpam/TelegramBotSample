@@ -34,6 +34,7 @@
 		$bot_response = strtolower($bot_response);
 	$attr = explode ( " " , $bot_response , 5);
 	$sql = "";
+	$bot_response = "";
 	
 	switch ($attr[0]){
 		case 'com': 
@@ -41,6 +42,7 @@
 			break;
 		case 'cap':
 			$sql = "SELECT denominazione, cap FROM biblioteche WHERE cap = '$attr[2]'";
+			$bot_response = CAP_LIST_MSG_1;
 			break;
 		case 'pro':
 			$sql = "SELECT denominazione, provincia FROM biblioteche WHERE provincia = '$attr[2]'";
@@ -51,7 +53,7 @@
 	$ps = $attr[2];
 	$list = db_table_query($sql);
 	    if ($list != null){
-		$bot_response = "$attr[2]:\n";
+		$bot_response .= " $attr[2]:\n\n";
 		foreach ($list as $ps => $p){
 			$bot_response .= $p[0] ."\n";
 	        }
